@@ -1,4 +1,4 @@
-## FinalProject
+# #FinalProject
 The final project of my B.Sc
 
 # Project Name: Early detection of autism risk using methods of computer vision
