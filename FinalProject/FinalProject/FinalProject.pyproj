@@ -24,6 +24,9 @@
   <ItemGroup>
     <Compile Include="FinalProject.py" />
     <Compile Include="Image.py" />
+    <Compile Include="Video.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="kids.JPG" />
