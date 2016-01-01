@@ -1,3 +1,3 @@
 import Image
 
-Image.upload_img()
+Image.upload_img('kids.JPG')

@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="kids.JPG" />
+    <Content Include="kids_output.jpg" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
