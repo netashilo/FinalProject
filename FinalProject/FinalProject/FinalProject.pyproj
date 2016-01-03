@@ -31,6 +31,7 @@
   <ItemGroup>
     <Content Include="kids.JPG" />
     <Content Include="kids_output.jpg" />
+    <Content Include="shirel.mp4" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
