@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from CascadeDictionary import dict
 
 def resizeImage(img, num):    
     height, width, a = img.shape
@@ -8,32 +9,46 @@ def resizeImage(img, num):
     return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     
 def upload_img(file_name):
-    #load the appropriate xml file
-    face_cascade = cv2.CascadeClassifier('C:\Users\owner\Documents\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml')
-    eye_cascade = cv2.CascadeClassifier('C:\Users\owner\Documents\opencv\sources\data\haarcascades\haarcascade_eye.xml')
+    # load the appropriate xml file
     
-    img = cv2.imread(file_name)                             #load the image and resize it
+    img = cv2.imread(file_name)                             # load the image and resize it
+    img = frontal_face_detection(img)                       # detect frontal-faces in the image 
+    img = profile_face_detection(img)                      # detect profile-faces in the image 
     img = resizeImage(img, 5)
-    img = face_detection(img, face_cascade, eye_cascade)    #detect faces in the image 
-    name = "%s_output.jpg"%(os.path.splitext(file_name)[0])                  #define the new video name
+    name = "%s_output.jpg"%(os.path.splitext(file_name)[0]) # define the new file name
     cv2.imwrite(name, img)
 
-    #display image on screen
+    # display image on screen
     cv2.imshow('kids', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-#This function detect faces&eyes in a given image and marks it with a rectangle
-def face_detection(frame, face_cascade, eye_cascade):
-    faces = face_cascade.detectMultiScale(frame, 1.2, 1)
+# This function detect frontal-faces in a given image and marks it with a rectangle
+def frontal_face_detection(frame):
+    faces = dict.get('haarcascade_frontalface_default').detectMultiScale(frame, 1.48, 2)
     for (x,y,w,h) in faces:
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
         face_rect = frame[y:y+h, x:x+w]
-        eye_detection(face_rect, eye_cascade)
+        if len(eye_detection(face_rect)) != 0:
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
     return frame
 
-#This function detect the eyes in a given face-rectangle and marks it with a rectangle
-def eye_detection(face_rect, eye_cascade):
-    eyes = eye_cascade.detectMultiScale(face_rect, 1.2, 3)
+# This function detect profile-faces in a given image and marks it with a rectangle
+def profile_face_detection(frame):
+    faces = dict.get('haarcascade_profileface').detectMultiScale(frame, 1.85, 2)
+    for (x,y,w,h) in faces:
+        face_rect = frame[y:y+h, x:x+w]
+        if len(eye_detection(face_rect)) != 0:
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)    
+    return frame
+
+
+# This function detect the eyes in a given face-rectangle and marks it with a rectangle
+def eye_detection(face_rect):
+    eyes = dict.get('haarcascade_eye').detectMultiScale(face_rect, 1.9, 2)
+    i = 0
     for (ex,ey,ew,eh) in eyes:
+        i += 1
         cv2.rectangle(face_rect,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+        if i == 2:
+            break
+    return eyes

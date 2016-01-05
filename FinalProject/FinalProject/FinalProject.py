@@ -1,7 +1,8 @@
 import Image
-from OpticFlow import optic_flow
 from Video import upload_video
+from Video import background_sub
 
-#Image.upload_img('kids.JPG')
+
+Image.upload_img('kids.JPG')
 #optic_flow()
-upload_video('shirel.mp4')
+#upload_video('shirel.mp4')
