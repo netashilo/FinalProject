@@ -6,7 +6,6 @@ import Image
 
 # This function upload an existing video, detect faces&eyes, and display it on the screen
 def upload_video(file_name):
-    
     cap = cv2.VideoCapture(file_name)                       # upload video
     name = os.path.splitext(file_name)[0]                   # define the new video name
     fps = cap.get(cv2.cv.CV_CAP_PROP_FPS)                   # get video frames-per-second number
@@ -14,16 +13,18 @@ def upload_video(file_name):
     height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
     size = (height, width)                                  # define new video frame size
     out = create_video_writer(name, fps, size)              
-
+    #fgbg = cv2.BackgroundSubtractorMOG()
+    
     # loop to read video frame by frame
     while(cap.isOpened()):
         ret, frame = cap.read()
         if not ret:
             break
         frame = rotate_90(frame)                            # rotate the frame
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)      # change to gray scale
-        frame = Image.frontal_face_detection(gray)
-        frame = Image.profile_face_detection(frame)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     # change to gray scale
+
+        faces = Image.face_detection('haarcascade_frontalface_default', frame, 1.48, 2)   # detect frontal-faces in the image
+        faces += Image.face_detection('haarcascade_profileface', frame, 1.85, 2)          # detect profile-faces in the image
         out.write(frame)
         cv2.imshow('frame', frame)                          # Display the resulting frame
         if cv2.waitKey(int(fps)) & 0xFF == ord('q'):
@@ -51,8 +52,8 @@ def camera_capture():
     # Define the codec and create VideoWriter object
     out = create_video_writer('neta', fps, (640,480))
 
+    # loop to capture video frame by frame
     while(cap.isOpened()):
-        # Capture frame by frame
         ret, frame = cap.read()
         if ret == True:
             # Changing to gray scale
@@ -67,12 +68,11 @@ def camera_capture():
                 break
         else:
             break
-         
     cap.release()
     out.release()
     cv2.destroyAllWindows()
 
-# This function displays a given video where the moving objects are painted in white
+# This function displays a given video, where the moving objects are painted in white
 def background_sub(file_name):
     cap = cv2.VideoCapture(file_name)
     fgbg = cv2.BackgroundSubtractorMOG()
@@ -91,3 +91,17 @@ def background_sub(file_name):
 
     cap.release()
     cv2.destroyAllWindows()
+
+# The function saves a given number of frames as images 
+def save_frames(file_name, N, freq):
+    cap = cv2.VideoCapture(file_name)       # upload video
+    name = os.path.splitext(file_name)[0]   # define the new video name
+    for i in range(N):
+        for j in range(freq):
+            cap.read()
+        ret, frame = cap.read()
+        if not ret:
+            break
+        #frame = rotate_90(frame)
+        new_name = "%s%d.jpg"%(name,i) # define the new file name
+        cv2.imwrite(new_name, frame)

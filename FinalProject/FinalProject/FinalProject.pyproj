@@ -27,19 +27,27 @@
     </Compile>
     <Compile Include="FinalProject.py" />
     <Compile Include="Image.py" />
+    <Compile Include="OpticFlow.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Video.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="family.JPG" />
-    <Content Include="kids.JPG" />
-    <Content Include="kids_old_output.jpg" />
-    <Content Include="kids_output.jpg" />
-    <Content Include="shirel.avi" />
-    <Content Include="shirel.JPG" />
-    <Content Include="shirel.mp4" />
-    <Content Include="shirel_output.jpg" />
+    <Content Include="content\OpticFlow\baby.mp4" />
+    <Content Include="content\shirel.avi" />
+    <Content Include="content\shirel1.mp4" />
+    <Content Include="content\kids.JPG" />
+    <Content Include="content\kids_old_output.jpg" />
+    <Content Include="content\kids_output.jpg" />
+    <Content Include="content\shirel.JPG" />
+    <Content Include="content\OpticFlow\shirel.mp4" />
+    <Content Include="content\shirel_output.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="content\" />
+    <Folder Include="content\OpticFlow\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
