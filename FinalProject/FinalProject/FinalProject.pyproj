@@ -5,13 +5,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5bce8cd8-4579-451f-bf8c-f33e9acc61a3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>FinalProject.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>FinalProject</Name>
     <RootNamespace>FinalProject</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,12 +26,30 @@
     <Compile Include="CascadeDictionary.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Eye.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Face.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FinalProject.py" />
+    <Compile Include="Frame.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Image.py" />
+    <Compile Include="Main.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="OpticFlow.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Smile.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Video.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VideoAnalizer.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -43,6 +62,7 @@
     <Content Include="content\kids_output.jpg" />
     <Content Include="content\shirel.JPG" />
     <Content Include="content\OpticFlow\shirel.mp4" />
+    <Content Include="content\shirel2.mp4" />
     <Content Include="content\shirel_output.jpg" />
   </ItemGroup>
   <ItemGroup>

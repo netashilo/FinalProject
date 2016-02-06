@@ -1,48 +1,8 @@
 import numpy as np
 import cv2
 import os
-from CascadeDictionary import dict
+from CascadeDictionary import d
 import Image
-
-# This function upload an existing video, detect faces&eyes, and display it on the screen
-def upload_video(file_name):
-    cap = cv2.VideoCapture(file_name)                       # upload video
-    name = os.path.splitext(file_name)[0]                   # define the new video name
-    fps = cap.get(cv2.cv.CV_CAP_PROP_FPS)                   # get video frames-per-second number
-    width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))    # get video frames width and height
-    height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
-    size = (height, width)                                  # define new video frame size
-    out = create_video_writer(name, fps, size)              
-    #fgbg = cv2.BackgroundSubtractorMOG()
-    
-    # loop to read video frame by frame
-    while(cap.isOpened()):
-        ret, frame = cap.read()
-        if not ret:
-            break
-        frame = rotate_90(frame)                            # rotate the frame
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     # change to gray scale
-
-        faces = Image.face_detection('haarcascade_frontalface_default', frame, 1.48, 2)   # detect frontal-faces in the image
-        faces += Image.face_detection('haarcascade_profileface', frame, 1.85, 2)          # detect profile-faces in the image
-        out.write(frame)
-        cv2.imshow('frame', frame)                          # Display the resulting frame
-        if cv2.waitKey(int(fps)) & 0xFF == ord('q'):
-            break
-    cap.release()
-    out.release()
-    cv2.destroyAllWindows()
-
-# This function defines the codec and creates VideoWriter object
-def create_video_writer(file_name, fps, size):
-    fourcc = cv2.cv.CV_FOURCC(*'XVID')
-    out = cv2.VideoWriter("%s.avi"%file_name ,fourcc, fps, size, False)
-    return out
-
-# This function rotates a given image 90 degrees to the right
-def rotate_90(img):
-    cv2.flip(img, 0, img)
-    return cv2.transpose(img)
 
 # This function captures and saves a video from computer camera, and display it on the screen
 def camera_capture():
@@ -102,6 +62,6 @@ def save_frames(file_name, N, freq):
         ret, frame = cap.read()
         if not ret:
             break
-        #frame = rotate_90(frame)
+        frame = rotate_90(frame)
         new_name = "%s%d.jpg"%(name,i) # define the new file name
         cv2.imwrite(new_name, frame)

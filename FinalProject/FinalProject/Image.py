@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from CascadeDictionary import dict
+from CascadeDictionary import d
 
 def resizeImage(img, num):    
     height, width, a = img.shape
@@ -23,21 +23,31 @@ def upload_img(file_name):
 
 # This function detect frontal/profile-faces in a given image and marks it with a rectangle
 def face_detection(cascade, frame, scale_factor, min_neighbors):
-    faces = dict.get(cascade).detectMultiScale(frame, scale_factor, min_neighbors)
+    faces = d.get(cascade).detectMultiScale(frame, scale_factor, min_neighbors)
     eyes = None
     for (x,y,w,h) in faces:
         face_rect = frame[y:y+h*2/3, x:x+w]
         eyes = eye_detection(face_rect)
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+        face_rect = frame[y+h/2:y+h, x:x+w]
+        smile_detection(face_rect)
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),1)
     return (faces, eyes)
 
 # This function detect the eyes in a given face-rectangle and marks it with a rectangle
 def eye_detection(face_rect):
-    eyes = dict.get('haarcascade_eye').detectMultiScale(face_rect, 1.9, 2)
+    eyes = d.get('haarcascade_eye').detectMultiScale(face_rect, 1.9, 2)
     i = 0
     for (ex,ey,ew,eh) in eyes:
         i += 1
-        cv2.rectangle(face_rect,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+        point = (ex,ey)
+        size = (ex+ew,ey+eh)
+        red = (0,255,0)
+        cv2.rectangle(face_rect,point,size,red,1)
         if i == 2:
             break
     return eyes
+
+def smile_detection(face_rect):
+    smiles = d.get('haarcascade_smile').detectMultiScale(face_rect, 2, 4)
+    for (x,y,w,h) in smiles:
+        cv2.rectangle(face_rect,(x,y),(x+w,y+h),(0,255,255),1)
