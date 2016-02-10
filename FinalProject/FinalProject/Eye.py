@@ -8,8 +8,8 @@ class Eye:
         self.w = eye[2]
         self.h = eye[3]
 
-    def mark_eye(self, frame):
+    def mark_eye(self, frame,color):
         point = (self.x, self.y)
         size = (self.x+self.w, self.y+self.h)
-        cv2.rectangle(frame, point, size, (0,255,0), 1)
+        cv2.rectangle(frame, point, size, color, 1)
         return frame

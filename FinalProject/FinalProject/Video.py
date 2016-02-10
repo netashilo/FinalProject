@@ -62,6 +62,11 @@ def save_frames(file_name, N, freq):
         ret, frame = cap.read()
         if not ret:
             break
-        frame = rotate_90(frame)
+        #frame = rotate_90(frame)
         new_name = "%s%d.jpg"%(name,i) # define the new file name
         cv2.imwrite(new_name, frame)
+
+# This function rotates a given image 90 degrees to the right
+def rotate_90(img):
+    cv2.flip(img, 0, img)
+    return cv2.transpose(img)

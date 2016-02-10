@@ -15,6 +15,8 @@ class Face:
         self.eye_detection(img)
         self.smile_detection(img)
                 
+    def get_rect(self):
+        return (self.x, self.y, self.w, self.h)
     # This function detect the eyes in a given face-rectangle and marks it with a rectangle
     def eye_detection(self, img):
         x1 = self.x
@@ -41,12 +43,12 @@ class Face:
             self.smile = Smile(smiles[0], self.x, self.y, self.h)
 
 
-    def mark_face(self, frame):
+    def mark_face(self, frame, color):
         point = (self.x, self.y)
         size = (self.x+self.w, self.y+self.h)
-        cv2.rectangle(frame, point, size, (255,0,0), 1)
+        cv2.rectangle(frame, point, size, color, 1)
         for eye in self.eyes:
-            frame = eye.mark_eye(frame)
+            frame = eye.mark_eye(frame,color)
         if self.smile != None:
-            self.smile.mark_smile(frame)
+            self.smile.mark_smile(frame,color)
         

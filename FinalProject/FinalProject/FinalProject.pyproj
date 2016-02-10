@@ -33,7 +33,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FinalProject.py" />
-    <Compile Include="Frame.py">
+    <Compile Include="ImageAnalizer.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Image.py" />
@@ -54,6 +54,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\babies.mp4" />
     <Content Include="content\OpticFlow\baby.mp4" />
     <Content Include="content\shirel.avi" />
     <Content Include="content\shirel1.mp4" />

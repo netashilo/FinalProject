@@ -8,7 +8,7 @@ class Smile:
         self.w = smile[2]
         self.h = smile[3]
 
-    def mark_smile(self, frame):
+    def mark_smile(self, frame,color):
         point = (self.x, self.y)
         size = (self.x+self.w, self.y+self.h)
-        cv2.rectangle(frame, point, size, (0,255,0), 1)
+        cv2.rectangle(frame, point, size, color, 1)

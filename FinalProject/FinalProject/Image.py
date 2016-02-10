@@ -30,7 +30,7 @@ def face_detection(cascade, frame, scale_factor, min_neighbors):
         eyes = eye_detection(face_rect)
         face_rect = frame[y+h/2:y+h, x:x+w]
         smile_detection(face_rect)
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),1)
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
     return (faces, eyes)
 
 # This function detect the eyes in a given face-rectangle and marks it with a rectangle
@@ -42,7 +42,7 @@ def eye_detection(face_rect):
         point = (ex,ey)
         size = (ex+ew,ey+eh)
         red = (0,255,0)
-        cv2.rectangle(face_rect,point,size,red,1)
+        cv2.rectangle(face_rect,point,size,red,2)
         if i == 2:
             break
     return eyes
@@ -50,4 +50,4 @@ def eye_detection(face_rect):
 def smile_detection(face_rect):
     smiles = d.get('haarcascade_smile').detectMultiScale(face_rect, 2, 4)
     for (x,y,w,h) in smiles:
-        cv2.rectangle(face_rect,(x,y),(x+w,y+h),(0,255,255),1)
+        cv2.rectangle(face_rect,(x,y),(x+w,y+h),(0,255,255),2)
