@@ -2,7 +2,8 @@ import numpy as np
 import cv2
 
 # a tuple of the cascades we are going to use
-tuple = ('haarcascade_frontalface_default', 'haarcascade_profileface', 'haarcascade_eye', 'haarcascade_smile')
+tuple = ('haarcascade_frontalface_default', 'haarcascade_profileface', 'haarcascade_eye', 'haarcascade_smile',
+         'haarcascade_mcs_mouth', 'haarcascade_mcs_nose', 'haarcascade_mcs_leftear', 'haarcascade_mcs_rightear')
 # the path to the xml files folder
 folder_path = 'C:/Users/owner/Documents/opencv/sources/data/haarcascades/'
 

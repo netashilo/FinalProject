@@ -5,6 +5,6 @@ import cv2
 
 class Main(object):
     """description of class"""
-    VideoAnalizer('content/babies.mp4')
-
+    vid_analizer = VideoAnalizer('content/shirel.mp4')
+    vid_analizer.read_video()
 

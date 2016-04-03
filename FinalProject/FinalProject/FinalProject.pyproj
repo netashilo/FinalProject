@@ -32,6 +32,9 @@
     <Compile Include="Face.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FaceOrgan.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FinalProject.py" />
     <Compile Include="ImageAnalizer.py">
       <SubType>Code</SubType>
@@ -55,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="content\babies.mp4" />
+    <Content Include="content\baby.mp4" />
     <Content Include="content\OpticFlow\baby.mp4" />
     <Content Include="content\shirel.avi" />
     <Content Include="content\shirel1.mp4" />

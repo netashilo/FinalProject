@@ -9,7 +9,7 @@ class VideoAnalizer:
             return
         self.cap = cv2.VideoCapture(file_name)   # load video
         self.create_video_writer(file_name)
-        self.read_video()
+        self.smiles = 0
     
     def check_file_name(self, file_name):
         list = file_name.split('.')
@@ -27,19 +27,20 @@ class VideoAnalizer:
         self.fps = self.cap.get(cv2.cv.CV_CAP_PROP_FPS)             # get video frames-per-second number
         width = int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))   # get video frames width and height
         height = int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
-        size = (height, width)                                      # define new video frame size
-        fourcc = cv2.cv.CV_FOURCC(*'DIVX')
+        size = (height,width)                                      # define new video frame size
+        fourcc = cv2.cv.CV_FOURCC(*'XVID')
         self.out = cv2.VideoWriter("%s_output.avi"%name ,fourcc, self.fps, size)
         
     #
     def read_video(self):
         prev_img_analizer = None
+        eyes_counter = 0
         # loop to read video frame by frame
         while(self.cap.isOpened()):
             ret, frame = self.cap.read()
             if not ret:
                 break
-            #frame = self.rotate_90(frame)                       # rotate the frame
+            frame = self.rotate_90(frame)                       # rotate the frame
             #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     # change to gray scale
             img_analizer = ImageAnalizer(frame , prev_img_analizer)
             img_analizer.mark_faces()
@@ -48,12 +49,22 @@ class VideoAnalizer:
             if cv2.waitKey(int(self.fps)) & 0xFF == ord('q'):
                 break
             prev_img_analizer = img_analizer
+            for face in img_analizer.faces:
+                if face.smile != None:
+                    self.smiles += 1
+        self.is_smile()
         self.release_memory()
 
     # This function rotates a given image 90 degrees to the right
     def rotate_90(self, img):
         cv2.flip(img, 0, img)
         return cv2.transpose(img)
+    
+    def is_smile(self):
+        if self.smiles > 20:
+            print "A smile was detected. number of smiles: %d"%self.smiles
+        else:
+            print "No smiles"
 
     def release_memory(self):        
         self.cap.release()
