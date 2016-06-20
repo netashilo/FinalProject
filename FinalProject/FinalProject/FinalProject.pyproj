@@ -43,10 +43,13 @@
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="OpticFlow.py">
+    <Compile Include="Mouth.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Smile.py">
+    <Compile Include="Nose.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OrgansTracker.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Video.py">
@@ -57,8 +60,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\neta.mp4" />
+    <Content Include="content\r3.mp4" />
+    <Content Include="content\r2.mp4" />
+    <Content Include="content\r.mp4" />
     <Content Include="content\babies.mp4" />
     <Content Include="content\baby.mp4" />
+    <Content Include="content\baby2.mp4" />
+    <Content Include="content\itay.mp4" />
+    <Content Include="content\girls.mp4" />
     <Content Include="content\OpticFlow\baby.mp4" />
     <Content Include="content\shirel.avi" />
     <Content Include="content\shirel1.mp4" />
