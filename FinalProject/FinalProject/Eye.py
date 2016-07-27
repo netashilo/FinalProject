@@ -4,85 +4,71 @@ import numpy as np
 import math
 
 class Eye(FaceOrgan):
-    """description of class"""
+    """ This class represents an eye location in an image.
+        the class finds the given eye pupil """
     def __init__(self, frame, eye, side):
         FaceOrgan.__init__(self, eye, "eye")
         self.side = side    #'r' for right eye and 'l' for left eye
         self.find_pupil(frame)
 
+    # This function finds the eye pupil
     def find_pupil(self,frame):
-        N = 6
         (x,y,w,h) = self.get_rect()
         center = (x+w/2,y+h/2)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        eye_rect = gray[y:y+h,x:x+w] 
-        #print "before: ",np.average(np.array(eye_rect))
-        #mask = np.zeros_like(eye_rect)
-        
-        equ = cv2.equalizeHist(eye_rect)
-        #print "equ: ",np.average(np.array(equ))
-
-        
-        #print "after: ", np.average(np.array(mask))
-        #mask = cv2.medianBlur(mask, 3)
-        #mask = cv2.GaussianBlur(mask,(3,3),0)
-        
-        c = np.array(equ)
-        med = np.median(c)
-        avg = np.average(c)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # change to gray scale
+        eye_rect = gray[y:y+h,x:x+w]                    # take the eye rectangle from the image
+        equ = cv2.equalizeHist(eye_rect)        
         bin = np.zeros_like(equ)
-        c = np.array(eye_rect)
-        med = np.median(c)
-        avg = np.average(c)
-        bin = np.zeros_like(equ)
-        cv2.threshold(equ,  avg/6, 255, cv2.THRESH_BINARY, bin)
-        #res = np.hstack((eye_rect,equ)) #stacking images side-by-side
-        #cv2.imshow(self.side,res)
-
-        #cv2.imshow("eye",equ)
-        points = []
-        med_points = []
+        cv2.threshold(equ,  10, 255, cv2.THRESH_BINARY, bin)
+        points = []         # list of all black points
+        mid_points = []     # list of all black points located in the center of the rectangle
         for i in range(len(bin)):
             for j in range(len(bin[0])):
                 if bin[i,j] == 0:
-                    points.append((x+j,y+i))
-                    if (h/4<i<3*h/4) and (w/4<j<3*w/4):
-                        med_points.append((x+j,y+i))
+                    points.append((x+j,y+i))            # save black points from all eye-rectangle
+                    if (h/3<i<2*h/3) and (w/3<j<2*w/3):
+                        mid_points.append((x+j,y+i))    # save black points from the center of eye-rectangle
         points = np.array(points)
-        med_points = np.array(med_points)
-        if len(med_points) == 0:
+        mid_points = np.array(mid_points)
+        if len(mid_points) == 0:
             return
-        x = med_points[:,0]
-        y = med_points[:,1]
+        x = mid_points[:,0]
+        y = mid_points[:,1]
+        # find the median point
         x_med = int(np.median(x))
         y_med = int(np.median(y))
+
         x = points[:,0]
         y = points[:,1]
         x = abs(x - x_med) < w/5
         y = abs(y - y_med) < w/5
+        # select the good points
         points = points[x == True]
         y = y[x==True]
         points = points[y==True]
+
         if len(points) > 0:
             (x,y),radius = cv2.minEnclosingCircle(points)
             self.center = (int(x),int(y))
             self.radius = int(radius)
           
+    # This function returns the eye-pupil center and radius
     def get_pupil(self):
         try:
-            return self.center,self.radius              # return pupil center
+            return self.center,self.radius  # return pupil center
         except:
-            return None   # if we didnt found a pupil
-                
+            return None                     # if we didnt found a pupil
+        
+    # This function draws the eye rectangle and pupil circle in the given frame        
     def mark_organ(self, frame, color):
         FaceOrgan.mark_organ(self,frame,color)
         try:            
-            cv2.circle(frame,self.center,self.radius,(0,255,0),1)
+            cv2.circle(frame,self.center,self.radius,(0,255,0),1)   #if we found a pupil
         except:
             return
 
+# This function calculate the distance between two points
 def calc_d(point1, point2):
     x = point1[0] - point2[0]
     y = point1[1] - point2[1]
-    return math.hypot(x,y)        
+    return math.hypot(x,y)

@@ -7,11 +7,17 @@ from subprocess import call
 import time
 from Face import calc_d
 from collections import deque
+from OrgansTracker import OrgansTracker
+
 
 class VideoAnalizer(object):
-    """description of class"""
+    """ This class receives a video, read it frame by frame and
+        saves a new video which contains the information.
+        Furthermore the class saves a text file with the baby movement
+        information, and a jason file with the organs information """
     def __init__(self, file_name, rotate):
         if not self.check_file(file_name):
+            self.cap = None
             return
         self.rotate = rotate
         self.cap = cv2.VideoCapture(file_name)
@@ -35,10 +41,11 @@ class VideoAnalizer(object):
         self.fps = self.cap.get(cv2.cv.CV_CAP_PROP_FPS)             # get video frames-per-second number
         width = int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))   # get video frames width and height
         height = int(self.cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+        # if video size is too large
         if width > 640:
             num = float(width)/640
             height = int(height/num)
-            width = int(width/num)         
+            width = int(width/num)
         if self.rotate:
             size = (height,width)                                      # define new video frame size
         else:
@@ -46,192 +53,74 @@ class VideoAnalizer(object):
         fourcc = cv2.cv.CV_FOURCC(*'XVID')
         self.out = cv2.VideoWriter("%s_output.avi"%name ,fourcc, self.fps, size)
 
-    # The function reads the video frame after frame
+    # This function reads the video frame after frame
     def read_video(self, name):
         self.all_faces = {}
-        prev_frame = None
-        prev_faces = deque(maxlen=3)       
+        prev_frame = None               # for the opticflow function
+        prev_faces = deque(maxlen=2)    # to track organs using the two previous faces
+        prev_faces.appendleft(None)   
         frame_num = 0
-        # loop to read video frame by frame
+        organs_tracker = OrgansTracker()
+        # loop to read frame by frame
         while(self.cap.isOpened()):
             ret, frame = self.cap.read()
             if not ret:
                 break
             faces = []
             frame_num += 1
-            while frame_num < 150:
-                ret, frame = self.cap.read()
-                if not ret:
-                    break
-                faces = []
-                frame_num += 1
-            if frame_num > 400:
-                break
+            # rotate the frame
             if self.rotate:
-                frame = self.rotate_90(frame)                    # rotate the frame
+                frame = self.rotate_90(frame)  
+            # if video size is too large                 
             if len(frame) > 640:
-                frame = self.resize_image(frame,int(len(frame)/640))            
+                frame = self.resize_image(frame,int(len(frame)/640))
+            # search faces         
             img_analizer = ImageAnalizer(frame , prev_frame, prev_faces, frame_num)
             prev_frame = frame.copy()
-            img_analizer.mark_faces()
+            ## for privacy
+            #frame = cv2.blur(frame,(17,17))
+            img_analizer.mark_faces(frame)
             faces = img_analizer.faces
-            head = "head: %s"
-            text = "eyes: %s"
-            smile = ""
-            nose_dir = ""
-            direction = ""
             if len(faces) == 0:
                 faces = []
-                no_faces += 1
+                prev_faces.appendleft(None)
             else:
-                d = self.calc_frame_dict(faces[0])
-                self.video_dict[frame_num] = d
-                nose = faces[0].get_nose()
-                r_eye, l_eye = faces[0].get_eyes_center()
-                self.update_centers_list(noses, nose)
-                self.update_centers_list(r_eyes, r_eye)
-                self.update_centers_list(l_eyes, l_eye)
-                x_direct = ""
-                y_direct = ""
-                nose_x = ""
-                nose_y = ""
-                if frame_num >= 10:
-                    n_x_direct, n_y_direct = self.track_object(frame,noses)
-                    r_x_direct, r_y_direct = self.track_object(frame,r_eyes)
-                    l_x_direct, l_y_direct = self.track_object(frame,l_eyes)
-                    if n_x_direct == -1:
-                        nose_x = "left"
-                    elif n_x_direct == 1:
-                        nose_x = "right"
-                    if n_y_direct == -1:
-                        nose_y = "upwards"
-                    elif n_y_direct == 1:
-                        nose_y = "downwards"
-                    if r_x_direct == -1 or l_x_direct == -1:
-                        x_direct = "left"
-                    elif r_x_direct == 1 or l_x_direct == 1:
-                        x_direct = "right"
-                    if r_y_direct == -1 or l_y_direct == -1:
-                        y_direct = "upwards"
-                    elif r_y_direct == 1 or l_y_direct == 1:
-                        y_direct = "downwards"
-                    if x_direct != "" and y_direct != "":
-                        direction = "%s-%s"%(x_direct,y_direct)
-                    else:
-                        direction = x_direct if x_direct != "" else y_direct
-                    if nose_x != "" and nose_y != "":
-                        nose_dir =  "%s-%s"%(nose_x,nose_y)
-                    else:
-                        nose_dir = nose_x if nose_x != "" else nose_y
-                    if nose_dir != "":
-                        head_move += 1
-                    if direction != "":
-                        eyes_move += 1
-                if faces[0].get_smile() is not None:
-                    smile = "smile"
-                    smiles_counter += 1
-                else:
-                    smile = ""
-                    no_smile += 1
-                    if no_smile > 3:
-
-                        no_smile = 0
-                        max_smiles = max(max_smiles, smiles_counter)
-                        smiles_sum += smiles_counter
-                        smiles_counter = 0
+                self.update_video_dict(faces[0], frame_num)
+                organs_tracker.update_organs(faces)
+                if frame_num > 10:
+                    organs_tracker.track(frame)
                 prev_faces.appendleft(faces[0])
-            cv2.putText(frame, head%nose_dir, (10, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1)
-            cv2.putText(frame, text%direction, (10, 60), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1)
-            cv2.putText(frame, smile, (10, 90), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1)
-                #cv2.putText(frame, "dx: {}, dy: {}".format(dX, dY),(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,0.35, (0, 0, 255), 1)
+            organs_tracker.add_labels(frame)
+            # write to the output video
             self.out.write(frame)
-            cv2.imshow('frame', frame)             # Display the resulting frame
+            cv2.imshow('frame', frame)             
+            # Display the resulting frame on screen
             if cv2.waitKey(int(self.fps)) & 0xFF == ord('q'):
                 break
-        f = open('%s_output.txt'%(name), 'w')  
-        max_smiles = max(max_smiles, smiles_counter)  
-        print >> f, "frames with no faces: ",no_faces
-        print >> f, "smiles in sequence: {0}% of the frames".format(int(float(max_smiles)/frame_num*100))
-        print >> f, "smiles: {0}% of the frames".format(int(float(smiles_sum)/frame_num*100))
-        print >> f, "eyes moves in {0}% of the frames".format(int(float(eyes_move)/frame_num*100))
-        print >> f, "head moves in {0}% of the frames".format(int(float(head_move)/frame_num*100))
-        print >> f, "number of frames: ",frame_num
-        f.close()      
-        objects_json = json.dumps(self.video_dict)  #create jason
+
+        # print movement information to the text file
+        organs_tracker.print_data(name,frame_num)
+        # print organs information to the jason file
+        objects_json = json.dumps(self.video_dict)  #create jason object
         f = open('%s_objects.json'%(name), 'w')
         print >> f, objects_json
         f.close()
+
         self.release_memory()
-
-    def save_video(self):
-        self.cap = cv2.VideoCapture(file_name)   # load video
-        # loop to read video frame by frame
-        while(self.cap.isOpened()):
-            ret, frame = self.cap.read()
-            if not ret:
-                break
-            faces = []
-            frame_num += 1
-            if self.rotate:
-                frame = self.rotate_90(frame)                    # rotate the frame
-            frame = res
-
-            self.out.write(frame)
-            cv2.imshow('frame', frame)             # Display the resulting frame
-            if cv2.waitKey(int(self.fps)) & 0xFF == ord('q'):
-                break
 
     # This function rotates a given image 90 degrees to the right
     def rotate_90(self, img):
         cv2.flip(img, 0, img)
         return cv2.transpose(img)
     
+    # This function resizes a given image
     def resize_image(self, img, num):    
         height, width, a = img.shape
         dim = (width/num, height/num)
         return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     
-    def update_centers_list(self, list, object):
-        if len(list) < 3 or object == (-1,-1):
-            list.appendleft(object)
-            return
-        l = np.array(list)
-
-
-        x = l[:,0]
-        y = l[:,1]
-        
-        is_none = x == -1
-        x = np.delete(x,np.where(is_none == True))
-        y = np.delete(y,np.where(is_none == True))
-        
-        if len(x) < 3:
-            list.appendleft(object)
-            return
-        x_med = int(np.median(x))
-        y_med = int(np.median(y))
-        d = calc_d((x_med,y_med),object)
-        if d < 80:
-            list.appendleft(object)
-            
-    def track_object(self, frame, list):
-        epsilon = 5     # the minimum delta for movement
-        x_direct, y_direct = 0,0
-        for i in range(len(list)):
-            if list[i-1] == (-1,-1) or list[i] == (-1,-1):
-                continue
-            if i == 1 and list[-1] is not None:
-                dx = list[i-1][0] - list[-1][0]
-                dy = list[i-1][1] - list[-1][1]
-                if abs(dx) > epsilon:
-                    x_direct = abs(dx)/dx
-                if abs(dy) > epsilon:
-                    y_direct = abs(dy)/dy
-            thickness = min(2,int(np.sqrt(len(list) / float(i + 1))))
-            cv2.line(frame, list[i - 1], list[i], (0, 0, 255), thickness)
-        return x_direct,y_direct
-
-    def calc_frame_dict(self, face):
+    # This function updates the dictionary of all organs
+    def update_video_dict(self, face, frame_num):
         d = {}
         r_pupil = None
         l_pupil = None
@@ -247,9 +136,39 @@ class VideoAnalizer(object):
                     l_pupil = value.get_pupil()
                     if l_pupil is not None:
                         d["l_pupil"] = l_pupil
-        return d
+        self.video_dict[frame_num] = d
 
     def release_memory(self):        
         self.cap.release()
         self.out.release()
         cv2.destroyAllWindows()
+
+# This function captures and saves a video from computer camera, and display it on the screen
+def camera_capture(file_name):
+    cap = cv2.VideoCapture(0)
+    width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))   # get video frames width and height
+    height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+    fps = 30.0
+    size = (width,height)
+    #Define the codec and create VideoWriter object
+    fourcc = cv2.cv.CV_FOURCC(*'XVID')
+    out = cv2.VideoWriter("%s.avi"%file_name ,fourcc, fps, size)
+    while(cap.isOpened()):
+        #Capture frame by frame
+        ret, frame = cap.read()
+        if ret != True:
+            break
+        out.write(frame)
+        #Display the resulting frame
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+         
+    cap.release()
+    out.release()
+    try:
+        os.remove("%s.mp4"%file_name)
+    except:
+        pass
+    os.rename("%s.avi"%file_name, "%s.mp4"%file_name)
+    cv2.destroyAllWindows()

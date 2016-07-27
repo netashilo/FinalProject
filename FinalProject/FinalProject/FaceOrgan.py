@@ -1,8 +1,7 @@
 import cv2
 
 class FaceOrgan(object):
-
-    """description of class"""
+    """ This class represents an organ location in an image."""
     def __init__(self, organ, name):
         self.x = organ[0]
         self.y = organ[1]
